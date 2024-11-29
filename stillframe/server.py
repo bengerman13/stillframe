@@ -1,7 +1,9 @@
+import asyncio
+
 from fastapi import FastAPI, WebSocket, BackgroundTasks
 from fastapi.responses import HTMLResponse
 
-from stillframe.extensions import CONFIG, IMAGE_SOURCE
+from stillframe.extensions import CONFIG, IMAGE_SOURCE, CONNECTION_MANAGER
 
 app = FastAPI()
 
@@ -27,10 +29,8 @@ html = """
 </html>
 """
 
-import asyncio
 
-
-async def build_message(last: int):
+async def build_message():
     return IMAGE_SOURCE.get_next_still()
 
 
@@ -41,9 +41,8 @@ async def get():
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    last = 1
+    await CONNECTION_MANAGER.connect(websocket)
     while True:
-        data = await build_message(last)
-        await websocket.send_bytes(data)
+        data = await build_message()
+        await CONNECTION_MANAGER.broadcast(data)
         await asyncio.sleep(10)
