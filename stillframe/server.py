@@ -1,11 +1,21 @@
 import asyncio
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, WebSocket, BackgroundTasks
+from fastapi import FastAPI, WebSocket, BackgroundTasks, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 
-from stillframe.extensions import CONFIG, IMAGE_SOURCE, CONNECTION_MANAGER
+from stillframe.extensions import CONNECTION_MANAGER
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    t = asyncio.create_task(CONNECTION_MANAGER.serve_forever())
+    yield
+    t.cancel()
+
+
+app = FastAPI(lifespan=lifespan)
+
 
 html = """
 <!DOCTYPE html>
@@ -17,21 +27,24 @@ html = """
         <img id="liveImg" style="min-width: 100%; min-height: 100%; width: 100%; height: auto; position: fixed; top: 0; left: 0;" />
         <script>
             var img = document.getElementById("liveImg");
-            var ws = new WebSocket("ws://localhost:8000/ws");
-            ws.binaryType = 'arraybuffer';
-            ws.onmessage = function(event) {
-                var arrayBuffer = event.data;
-                var blob  = new Blob([new Uint8Array(arrayBuffer)], {type: "image/bmp"});
-                img.src = window.URL.createObjectURL(blob);
-            };
+            function startWebsocket() {
+                var ws = new WebSocket("ws://localhost:8000/ws");
+                ws.binaryType = 'arraybuffer';
+                ws.onmessage = function(event) {
+                    var arrayBuffer = event.data;
+                    var blob  = new Blob([new Uint8Array(arrayBuffer)], {type: "image/bmp"});
+                    img.src = window.URL.createObjectURL(blob);
+                };
+                ws.onclose = function() {
+                    ws = null;
+                    setTimeout(startWebsocket, 1000);
+                }
+            }
+            startWebsocket();
         </script>
     </body>
 </html>
 """
-
-
-async def build_message():
-    return IMAGE_SOURCE.get_next_still()
 
 
 @app.get("/")
@@ -43,6 +56,4 @@ async def get():
 async def websocket_endpoint(websocket: WebSocket):
     await CONNECTION_MANAGER.connect(websocket)
     while True:
-        data = await build_message()
-        await CONNECTION_MANAGER.broadcast(data)
-        await asyncio.sleep(10)
+        await asyncio.sleep(1)

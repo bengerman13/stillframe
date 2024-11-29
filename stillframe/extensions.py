@@ -4,4 +4,4 @@ from stillframe.connection_manager import ConnectionManager
 
 CONFIG = Config.from_env()
 IMAGE_SOURCE = FileWalkerImageSource(CONFIG.source_path, CONFIG.extensions)
-CONNECTION_MANAGER = ConnectionManager()
+CONNECTION_MANAGER = ConnectionManager(IMAGE_SOURCE)
