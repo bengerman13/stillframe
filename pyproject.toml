@@ -1,12 +1,14 @@
 [tool.poetry]
 name = "stillframe"
 version = "0.1.0"
-description = ""
+description = "Use video frames as images for live displays"
 authors = ["Ben Berry <bengerman@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+fastapi = {extras = ["standard"], version = "^0.115.5"}
+websockets = "^14.1"
 
 
 [build-system]
