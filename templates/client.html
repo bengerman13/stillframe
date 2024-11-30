@@ -9,11 +9,11 @@
             var img = document.getElementById("liveImg");
             function startWebsocket() {
                 var ws = new WebSocket("{{ url_for('websocket_endpoint')}}");
-                ws.binaryType = 'arraybuffer';
+                ws.binaryType = 'blob';
                 ws.onmessage = function(event) {
-                    var arrayBuffer = event.data;
-                    var blob  = new Blob([new Uint8Array(arrayBuffer)]);
-                    img.src = window.URL.createObjectURL(blob);
+                    var data = event.data;
+                    var obj = JSON.parse(data);
+                    img.src = obj.image_data;
                 };
                 ws.onclose = function() {
                     ws = null;
