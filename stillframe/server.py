@@ -44,6 +44,8 @@ async def recent(request: Request):
 @app.get("/admin/still/{still_id}")
 async def get_still(still_id: str, request: Request):
     still = CONNECTION_MANAGER.image_source.stills_by_id[still_id]
+    if CONNECTION_MANAGER.image_source.rehydrate_for_admin_page:
+        still.hydrate()
     return templates.TemplateResponse(
         request=request, name="still.html", context={"still": still}
     )
@@ -52,6 +54,8 @@ async def get_still(still_id: str, request: Request):
 @app.post("/admin/still/{still_id}")
 async def manage_still(still_id: str, action: Annotated[str, Form()], request: Request):
     still = CONNECTION_MANAGER.image_source.stills_by_id[still_id]
+    if CONNECTION_MANAGER.image_source.rehydrate_for_admin_page:
+        still.hydrate()
     if action == "deny":
         still.is_denylisted = True
     elif action == "allow":

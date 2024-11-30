@@ -11,24 +11,31 @@
         </style>
     </head>
     <body>
-        ID: {{still.id_}} <br>
-        Path: {{still.source}} <br>
-        Denylisted?: {{still.is_denylisted}}<br>
-        <form action="{{url_for('manage_still', still_id=still.id_)}}" method="post">
-        {% if still.is_denylisted %}
-        <input type="text" hidden="true" id="action" name="action" value="allow">
-        <button>Un-denylist</button>
-        {% else %}
-        <input type="text" hidden="true" id="action" name="action" value="deny">
-        <button>Denylist</button>
+          <main style="height: 95vh; display: grid;">
+          <fieldset>
+            <legend>Still</legend>
+            <label for="still_id">ID:</label>
+            <input type="text" disabled="true" id="still_id" name="still_id" value="{{still.id_}}"><br>
+            <label for="source">Source:</label>
+            <input type="text" disabled="true" id="source" name="source" value="{{still.source}}"> <br>
+            <label for="denylisted" >Denylisted:</label>
+            <input type="text" disabled="true" id="denylisted" name="denylisted" value="{{still.is_denylisted}}"><br>
+          </fieldset>
+        <form action="{{url_for('manage_still', still_id=still.id_)}}" method="post" style="padding: 5px">
+          {% if still.is_denylisted %}
+          <input type="text" hidden="true" id="action" name="action" value="allow">
+          <button>Un-denylist</button>
+          {% else %}
+          <input type="text" hidden="true" id="action" name="action" value="deny">
+          <button>Denylist</button>
+          {% endif %}
         </form>
-        {% endif %}
         {% if still.is_hydrated %}
-        <img src="{{still.image_data}}" style="max-width: 100%; max-height: 100%;">
+        <img src="{{still.image_data}}" style="max-width: 100%; max-height: 100%; object-fit: contain; padding: 5px;">
         {% else %}
         <p>Image not hydrated</p>
         {% endif %}
-
+    </main>
 
     </body>
 </html>

@@ -28,10 +28,11 @@ class Still:
         return json.dumps(d)
 
     def hydrate(self):
-        with open(self.source, "rb") as f:
-            b64 = base64.b64encode(f.read()).decode("utf-8")
-            self.image_data = f"data:{self.mime_type};base64,{b64}"
-            self.is_hydrated = True
+        if not self.is_hydrated and not len(self.image_data):
+            with open(self.source, "rb") as f:
+                b64 = base64.b64encode(f.read()).decode("utf-8")
+                self.image_data = f"data:{self.mime_type};base64,{b64}"
+                self.is_hydrated = True
 
     def dehydrate(self):
         self.image_data = ""
@@ -48,6 +49,7 @@ class FileWalkerImageSource:
         self.stills_by_id = {}
         self.rescan()
         self.current_still_index = 0
+        self.rehydrate_for_admin_page = True
 
     def rescan(self):
         stills = []
