@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>admin</title>
+        <style>
+            table, th, td {
+              border: 1px solid black;
+              border-collapse: collapse;
+              padding: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <th>id</th>
+                <th>source</th>
+                <th>mime type</th>
+                <th>preview</th>
+            </tr>
+            {% for still in recent_stills %}
+            <tr>
+                <td><a href="{{url_for('get_still', still_id=still.id_)}}">{{still.id_}}</a></td>
+                <td>{{still.source}}</td>
+                <td>{{still.mime_type}}</td>
+                <td><img src="{{still.image_data}}" style="height: 100px;"></td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+    </body>
+</html>

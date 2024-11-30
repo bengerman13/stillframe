@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>admin</title>
+        <style>
+            table, th, td {
+              border: 1px solid black;
+              border-collapse: collapse;
+              padding: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        ID: {{still.id_}} <br>
+        Path: {{still.source}} <br>
+        Denylisted?: {{still.is_denylisted}}<br>
+        <form action="{{url_for('manage_still', still_id=still.id_)}}" method="post">
+        {% if still.is_denylisted %}
+        <input type="text" hidden="true" id="action" name="action" value="allow">
+        <button>Un-denylist</button>
+        {% else %}
+        <input type="text" hidden="true" id="action" name="action" value="deny">
+        <button>Denylist</button>
+        </form>
+        {% endif %}
+        {% if still.is_hydrated %}
+        <img src="{{still.image_data}}" style="max-width: 100%; max-height: 100%;">
+        {% else %}
+        <p>Image not hydrated</p>
+        {% endif %}
+
+
+    </body>
+</html>
