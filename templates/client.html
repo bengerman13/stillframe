@@ -1,26 +1,50 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>viewer</title>
-    </head>
-    <body style="margin: 0px;">
-        <img id="liveImg" style="min-width: 100%; min-height: 100%; width: 100%; height: auto; position: fixed; top: 0; left: 0;" />
-        <script>
-            var img = document.getElementById("liveImg");
-            function startWebsocket() {
-                var ws = new WebSocket("{{ url_for('websocket_endpoint')}}");
-                ws.binaryType = 'blob';
-                ws.onmessage = function(event) {
-                    var data = event.data;
-                    var obj = JSON.parse(data);
-                    img.src = obj.image_data;
-                };
-                ws.onclose = function() {
-                    ws = null;
-                    setTimeout(startWebsocket, 1000);
-                }
+<html><head>
+    <title>viewer</title>
+    <style>
+        body {
+            margin: 0px;
+        }
+        .bg-img {
+            min-width: 100%;
+            min-height: 100%;
+            width: 100%;
+            height: auto;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        .transitioning-src {
+            transition: opacity 0.6s;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <img class="bg-img" id="inImg" src="">
+    <img class="bg-img" id="outImg" src="">
+    <script>
+        function startWebsocket() {
+            var ws = new WebSocket("{{ url_for('websocket_endpoint')}}");
+            ws.binaryType = 'blob';
+            ws.onmessage = function(event) {
+                var obj = JSON.parse(event.data);
+                var dataurl = obj.image_data;
+                var inImg = document.getElementById("inImg");
+                var outImg = document.getElementById("outImg");
+                outImg.classList.add('transitioning-src');
+                inImg.src  = dataurl;
+                setTimeout(() => {
+                    outImg.src  = dataurl;
+                    outImg.classList.remove('transitioning-src');
+                }, 600);
+            };
+            ws.onclose = function() {
+                ws = null;
+                setTimeout(startWebsocket, 1000);
             }
-            startWebsocket();
-        </script>
-    </body>
-</html>
+        }
+        startWebsocket();
+    </script>
+
+</body></html>
